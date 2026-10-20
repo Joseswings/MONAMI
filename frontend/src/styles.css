@@ -1,0 +1,194 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #153e3a; background: #f4f7f4; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+main { max-width: 1040px; margin: auto; padding: 32px 24px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-size: 32px; font-weight: 800; letter-spacing: -1.5px; }
+.brand-dot { color: #a86b13; }
+.badge { font-size: 12px; background: #e1ebe5; padding: 8px 12px; border-radius: 24px; }
+.card { max-width: 500px; margin: 64px auto 32px; padding: 36px; border: 1px solid #d6e3d9; background: #fff; border-radius: 20px; box-shadow: 0 12px 40px #153e3a08; }
+.eyebrow { color: #4d6c60; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+h1 { font-size: clamp(26px, 5vw, 34px); line-height: 1.15; letter-spacing: -1px; margin: 16px 0; }
+.intro, footer { color: #52645c; line-height: 1.6; }
+form { display: flex; flex-direction: column; margin-top: 28px; }
+label { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+input { width: 100%; font: inherit; border: 1px solid #9db2a6; border-radius: 8px; padding: 12px; margin-bottom: 20px; }
+button { width: 100%; border: 0; border-radius: 8px; padding: 14px; font: inherit; font-weight: 600; color: #fff; background: #134e4a; cursor: pointer; }
+button:hover { background: #0d3c39; }
+button:disabled { opacity: .6; cursor: wait; }
+:focus-visible { outline: 3px solid #b97a19; outline-offset: 3px; }
+.secondary { background: #e9efeb; color: #153e3a; margin-top: 12px; }
+.secondary:hover { background: #d6e3d9; }
+.error { color: #8b2020; background: #fff0ee; padding: 12px; border-radius: 8px; line-height: 1.5; }
+.notice { line-height: 1.5; }
+dt { font-size: 12px; color: #52645c; margin-top: 16px; }
+dd { margin: 4px 0 20px; overflow-wrap: anywhere; }
+.role { text-transform: capitalize; }
+footer { text-align: center; font-size: 12px; }
+@media (max-width: 540px) { main { padding: 24px 16px; } .card { margin-top: 36px; padding: 24px; } }
+
+/* Recorrido local de pedidos. */
+.demo-shell { max-width: 1120px; }
+.header-actions, .nav-links, .actions { display: flex; align-items: center; gap: 12px; }
+.demo-banner { background: #e6eee8; border: 1px solid #ceded2; border-radius: 8px; padding: 12px 16px; color: #38584a; font-size: 13px; line-height: 1.5; margin: 24px 0; }
+.role-intro { padding: 36px 0; }
+.role-intro h1 { font-size: clamp(30px, 6vw, 48px); max-width: 650px; }
+.role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 32px 0; }
+.role-card { background: #fff; color: #153e3a; border: 1px solid #d6e3d9; padding: 24px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-height: 200px; }
+.role-card:hover { background: #eff5ef; border-color: #134e4a; }
+.role-card strong { font-size: 21px; }
+.role-card > span { overflow-wrap: anywhere; }
+.role-label { color: #52705e; text-transform: uppercase; font-size: 11px; letter-spacing: 1.5px; }
+.role-action { margin-top: auto; font-size: 14px; }
+.workspace-nav { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin: 28px 0; }
+.workspace-nav .hint { display: block; margin-top: 4px; }
+a { color: #145b4e; text-underline-offset: 4px; }
+.nav-links a { text-decoration: none; padding: 12px 16px; border-radius: 8px; font-weight: 600; }
+.nav-links .selected { background: #dce9df; }
+.panel { border: 1px solid #d6e3d9; border-radius: 16px; padding: 36px; background: #fff; margin-bottom: 32px; }
+.panel h2 { font-size: 22px; margin-top: 32px; }
+.panel h3 { font-size: 15px; margin: 0 0 12px; }
+.hint, .muted { color: #52645c; font-size: 13px; line-height: 1.6; }
+.muted { font-weight: 400; }
+.order-form { margin-top: 32px; }
+fieldset { border: 0; padding: 0; margin: 0 0 36px; min-width: 0; }
+legend { font-size: 19px; font-weight: 700; margin-bottom: 24px; }
+.field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+.field-grid label, .item-row label, fieldset > label { display: block; }
+textarea { width: 100%; font: inherit; color: inherit; padding: 12px; border: 1px solid #9db2a6; border-radius: 8px; resize: vertical; margin-bottom: 16px; }
+.item-row { display: grid; grid-template-columns: minmax(0, 1fr) 130px auto; align-items: center; gap: 16px; }
+.compact { width: auto; }
+.text-button { width: auto; padding: 6px 0; border-radius: 3px; background: transparent; color: #145b4e; text-decoration: underline; font-size: 13px; }
+.text-button:hover { background: transparent; color: #0c392e; }
+.actions { justify-content: flex-end; flex-wrap: wrap; }
+.actions button { width: auto; min-width: 150px; }
+.actions .secondary { margin: 0; }
+.location-map { width: 100%; height: 300px; border: 1px solid #ccdacf; border-radius: 10px; z-index: 0; background: #e8eee7; }
+.leaflet-container { font-family: inherit; }
+details { margin-bottom: 20px; }
+summary { cursor: pointer; margin-bottom: 16px; color: #145b4e; font-size: 14px; }
+.summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 28px 0; }
+.summary-grid p { line-height: 1.7; overflow-wrap: anywhere; white-space: pre-wrap; margin: 0; }
+.wide { grid-column: 1 / -1; }
+.product-list, .orders-list { padding: 0; margin: 0; list-style: none; }
+.product-list li { display: flex; justify-content: space-between; gap: 20px; padding: 14px 0; border-bottom: 1px solid #e5ece6; overflow-wrap: anywhere; }
+.product-list strong { white-space: nowrap; font-size: 14px; }
+.info { background: #f6f1e6; border-radius: 8px; padding: 16px; line-height: 1.6; color: #655020; }
+.search-order { max-width: 560px; margin: 28px 0; }
+.search-order .actions { flex-wrap: nowrap; }
+.search-order input { margin: 0; min-width: 0; }
+.search-order button { min-width: auto; }
+.empty-state { text-align: center; padding: 40px 24px; background: #f5f8f4; border-radius: 12px; }
+.empty-symbol { display: inline-block; font-size: 40px; color: #8c6824; }
+.empty-state p { color: #52645c; line-height: 1.6; }
+.button-link { display: inline-block; background: #134e4a; color: white; text-decoration: none; padding: 14px 20px; border-radius: 8px; margin-top: 12px; }
+.orders-list li { border-top: 1px solid #dce7de; }
+.orders-list a { text-decoration: none; display: flex; justify-content: space-between; gap: 24px; padding: 24px 0; }
+.orders-list a:hover { background: #f7faf6; }
+.orders-list p { color: #52645c; margin: 8px 0; overflow-wrap: anywhere; }
+.order-list-status { display: flex; flex-direction: column; align-items: flex-end; gap: 16px; font-size: 13px; }
+.status-tag { display: inline-block; background: #f5eddb; color: #6e521e; font-size: 12px; border-radius: 20px; padding: 8px 12px; white-space: nowrap; }
+.receipt-code { display: flex; align-items: center; gap: 20px; margin: 24px 0; flex-wrap: wrap; }
+.receipt-code strong { font-family: ui-monospace, monospace; font-size: 24px; letter-spacing: 1px; }
+.tracker { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); list-style: none; padding: 0; margin: 32px 0; gap: 8px; }
+.tracker li { color: #6e7e73; display: flex; flex-direction: column; gap: 12px; font-size: 12px; border-top: 3px solid #e3eae4; padding-top: 16px; }
+.step-dot { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #ecf1eb; color: #52645c; }
+.tracker .active { color: #134e4a; font-weight: 700; border-color: #134e4a; }
+.active .step-dot, .complete .step-dot { background: #134e4a; color: white; }
+.delivery-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; border-bottom: 1px solid #e3eae4; padding-bottom: 12px; }
+.upcoming { padding: 48px; }
+@media (max-width: 640px) {
+  .panel { padding: 24px 18px; } .role-grid, .field-grid, .summary-grid { grid-template-columns: 1fr; }
+  .header-actions { flex-direction: column; align-items: flex-end; gap: 4px; }
+  .workspace-nav { flex-direction: column; align-items: stretch; } .nav-links { justify-content: space-between; }
+  .item-row { grid-template-columns: minmax(0, 1fr) 90px; gap: 12px; }
+  .item-row .text-button { grid-column: 1 / -1; margin-bottom: 16px; text-align: left; }
+  .orders-list a { flex-direction: column; gap: 16px; } .order-list-status { align-items: flex-start; }
+  .tracker { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .delivery-facts { grid-template-columns: 1fr; } .actions button { flex: 1; min-width: 120px; }
+  .search-order .actions button { flex: 0; } .product-list li { flex-wrap: wrap; }
+}
+/* Revisión de empresa y correcciones compartidas con el cliente. */
+.order-filters { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.4rem 0; }
+.order-filters button[aria-pressed="true"] { background: #173e36; color: white; border-color: #173e36; }
+.company-group { margin-top: 1.6rem; padding-top: .5rem; border-top: 1px solid #dbe3de; }
+.company-controls, .schedule-form { padding: 1.3rem; margin-top: 1.5rem; background: #f4f7f2; border-radius: 1rem; }
+.company-controls fieldset, .schedule-form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.correction-request { margin-top: 1.5rem; }
+.correction-notice { border: 1px solid #b48121; background: #fff8e9; padding: 1.3rem; border-radius: 1rem; margin: 1.3rem 0; }
+.preserve-lines { white-space: pre-wrap; overflow-wrap: anywhere; }
+.order-history { margin: 2rem 0; }
+.order-history ol { padding-left: 1.3rem; }
+.order-history li { padding: .7rem 0 .7rem .4rem; border-bottom: 1px solid #e0e5df; }
+.order-history li > strong, .order-history li > span { display: block; }
+.order-history li p { margin: .5rem 0; }
+.order-filters .secondary { margin-top: 0; }
+.status-tag { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+
+/* Capacidad, selección y recorrido propuesto de la flota simulada. */
+select { width: 100%; font: inherit; color: inherit; border: 1px solid #9db2a6; border-radius: 8px; padding: 12px; margin: 8px 0 16px; background: #fff; }
+.truck-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 28px 0; }
+.truck-card { display: flex; flex-direction: column; gap: 12px; text-align: left; background: #f5f8f4; color: #153e3a; border: 2px solid #d6e3d9; padding: 20px; }
+.truck-card:hover { background: #e9f1e8; }
+.truck-card[aria-pressed="true"] { border-color: #134e4a; background: #e2eee4; }
+.truck-card > span { font-size: 13px; line-height: 1.5; }
+.truck-card meter { width: 100%; height: 16px; }
+.truck-editor { border-top: 1px solid #d6e3d9; padding-top: 10px; }
+.truck-editor h3 { margin-top: 28px; }
+.truck-editor .actions { margin: 16px 0; }
+.planning-orders { padding: 0; list-style: none; }
+.planning-choice { display: flex; align-items: flex-start; gap: 12px; border-bottom: 1px solid #dce7de; padding: 16px 0; cursor: pointer; }
+.planning-choice input { width: 20px; height: 20px; margin: 2px 0 0; flex-shrink: 0; accent-color: #134e4a; }
+.planning-choice span > span, .planning-choice strong { display: block; line-height: 1.6; overflow-wrap: anywhere; }
+.planning-choice span > span { font-size: 13px; font-weight: 400; }
+.planned-stops { padding-left: 26px; }
+.planned-stops li { padding: 14px 0; border-bottom: 1px solid #dce7de; }
+.planned-stops p { overflow-wrap: anywhere; line-height: 1.5; }
+.stop-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.stop-actions .secondary { margin: 0; }
+.route-map { height: 360px; }
+.route-pin { background: #134e4a; color: #fff; border: 2px solid #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: 700; box-shadow: 0 2px 5px #0004; }
+.depot-pin { background: #956a1e; }
+@media (max-width: 760px) { .truck-grid { grid-template-columns: 1fr; } }
+
+/* Carga y recorrido del conductor, con seguimiento compartido de la simulación. */
+.nav-links { flex-wrap: wrap; }
+.dispatch-form { padding: 20px; border: 1px solid #d6e3d9; border-radius: 12px; }
+.dispatch-form fieldset { margin-bottom: 0; }
+.trip-card { padding: 20px; margin-top: 24px; border: 1px solid #d6e3d9; border-radius: 12px; }
+.trip-card > summary { font-weight: 700; line-height: 1.6; }
+.trip-manifest { list-style: none; padding: 0; }
+.trip-manifest > li { padding: 24px 0; border-top: 1px solid #d6e3d9; }
+.trip-manifest p { line-height: 1.6; }
+.contact-value { overflow-wrap: anywhere; }
+.trip-progress label { display: block; }
+progress { display: block; width: 100%; height: 18px; accent-color: #145b4e; margin: 12px 0; }
+.driver-actions { padding: 20px; margin-top: 24px; background: #f4f7f2; border-radius: 12px; }
+.driver-actions fieldset { margin: 0; }
+.customer-tracking { margin-top: 32px; padding-top: 12px; border-top: 1px solid #d6e3d9; }
+@media (max-width: 640px) { .trip-card, .dispatch-form { padding: 16px 12px; } .driver-workspace .location-map { height: 300px; } }
+
+.incident-alert { background: #fff1e7; border: 1px solid #b14f20; color: #713315; border-radius: 10px; padding: 16px; line-height: 1.6; margin: 20px 0; }
+.incident-section { border-top: 1px solid #d6e3d9; margin-top: 24px; padding-top: 16px; }
+.incident-section fieldset, .problem-form fieldset, .reschedule-form fieldset { margin-bottom: 8px; }
+.incident-history, .delivery-attempts ol { padding-left: 24px; }
+.incident-history li, .delivery-attempts li { padding: 12px 0; border-bottom: 1px solid #d6e3d9; }
+.problem-form, .reschedule-form { padding: 18px; background: #f7f4ec; border-radius: 10px; }
+.reschedule-form legend { font-size: 17px; }
+.partner-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+.partner-card, .third-party-card { padding: 1.25rem; margin: 1rem 0; border: 1px solid #dce5df; border-radius: 16px; background: #fbfdfb; }
+.third-party-summary { border-left: 3px solid #247453; padding-left: 1rem; margin: 1rem 0; }
+.third-party-card fieldset { display: grid; gap: .7rem; margin-top: 1rem; }
+.third-party-card .actions { flex-wrap: wrap; }
+.third-party-summary progress { display: block; width: 100%; max-width: 32rem; accent-color: #247453; margin-top: .6rem; }
+.coverage-filter { display: flex; align-items: center; gap: .7rem; margin: 1rem 0; }
+.coverage-filter input { width: auto; }
+.contact-address { overflow-wrap: anywhere; }
+.third-party-archive { margin: 1rem 0; }
+.delivery-receipt { background: #e7f4eb; border: 1px solid #96c4a5; border-radius: 12px; padding: 1rem; margin: 1rem 0; color: #164b30; }
+.delivery-confirmation { padding: 1rem; margin: 1rem 0; border: 1px solid #b8d8c2; border-radius: 12px; }
+.delivery-confirmation fieldset { display: grid; gap: .6rem; }
+.pitch-controls { padding: 1rem; border: 1px solid #c5d8ca; background: #edf5ef; border-radius: 12px; margin-bottom: 1.5rem; }
+.pitch-controls .actions { flex-wrap: wrap; }
+.pitch-controls form { max-width: 40rem; margin-top: 1rem; }
+.pitch-controls fieldset { display: grid; gap: .7rem; }
