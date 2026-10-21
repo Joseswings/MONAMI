@@ -45,9 +45,12 @@ class Settings(BaseSettings):
         if self.pitch_mode:
             if self.database_url is None:
                 raise ValueError("PITCH_MODE requiere DATABASE_URL")
-            for key in (self.pitch_access_key, self.pitch_reset_key):
-                if key is None or not 24 <= len(key.get_secret_value()) <= 256:
-                    raise ValueError("Las claves de pitch requieren entre 24 y 256 caracteres")
+            for name, key, minimum, maximum in (
+                ("PITCH_ACCESS_KEY", self.pitch_access_key, 8, 64),
+                ("PITCH_RESET_KEY", self.pitch_reset_key, 24, 256),
+            ):
+                if key is None or not minimum <= len(key.get_secret_value()) <= maximum:
+                    raise ValueError(f"{name} requiere entre {minimum} y {maximum} caracteres")
                 if "REPLACE" in key.get_secret_value():
                     raise ValueError("Reemplazar las claves de ejemplo del pitch")
             if self.pitch_access_key == self.pitch_reset_key:

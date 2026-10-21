@@ -18,7 +18,7 @@ pitch_router = APIRouter(prefix="/api/v1/pitch", tags=["pitch preparado"])
 
 class PitchLogin(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    access_key: SecretStr = Field(min_length=1, max_length=256)
+    access_key: SecretStr = Field(min_length=8, max_length=64)
 
 
 class PitchReset(BaseModel):

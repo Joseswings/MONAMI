@@ -31,7 +31,8 @@ Una aplicación comercial completa requiere otro alcance de identidad, permisos,
 
 - URL PostgreSQL real del proyecto Supabase para el backend, con contraseña codificada y SSL.
 - Opcionalmente, otra conexión con permisos DDL para Alembic: `MIGRATION_DATABASE_URL`.
-- Dos claves distintas generadas para acceso y reinicio, de 24 a 256 caracteres.
+- Una clave de acceso fácil de compartir, de 8 a 64 caracteres.
+- Otra clave privada del presentador para reiniciar, de 24 a 256 caracteres y distinta de la de acceso.
 - Proveedor del backend y URL HTTPS final de ambos servicios; puede decidirse después de preparar la base.
 - Una base PostgreSQL distinta para ejecutar las pruebas de integración.
 
@@ -54,8 +55,8 @@ DEMO_MODE=false
 PITCH_MODE=true
 PITCH_SCENARIO_ID=monami-pitch
 DATABASE_URL=postgresql+psycopg://USUARIO:CONTRASENA_CODIFICADA@HOST:PUERTO/postgres?sslmode=require
-PITCH_ACCESS_KEY=REEMPLAZAR_POR_CLAVE_ALEATORIA_DE_ACCESO
-PITCH_RESET_KEY=REEMPLAZAR_POR_OTRA_CLAVE_ALEATORIA_DEL_PRESENTADOR
+PITCH_ACCESS_KEY=REPLACE_WITH_MEMORABLE_ACCESS_KEY
+PITCH_RESET_KEY=REPLACE_WITH_RANDOM_PRESENTER_KEY
 CORS_ORIGINS=["http://localhost:5173"]
 SESSION_TTL_MINUTES=480
 ```
@@ -64,8 +65,13 @@ Sustituir `postgresql://` de la cadena de Supabase por `postgresql+psycopg://`. 
 host, puerto y base. Añadir `?sslmode=require`, o `&sslmode=require` si ya tiene parámetros. Codificar
 caracteres reservados de la contraseña, por ejemplo `@` como `%40` y `#` como `%23`, sin codificar la URL completa.
 
-Para generar cada clave, ejecutar localmente desde `backend/`, dos veces, y copiar cada resultado al
-campo correspondiente. No existe una contraseña de presentación predefinida:
+Para `PITCH_ACCESS_KEY`, elegir una frase fácil de escribir de 8 a 64 caracteres. Por ejemplo,
+`MONAMI-PITCH` ilustra el formato; no es una clave configurada ni una contraseña predefinida.
+Compartir la clave elegida con los espectadores: permite entrar y recorrer todos los roles de la demo.
+Se distingue entre mayúsculas y minúsculas; escribirla exactamente como se configuró.
+
+Para generar `PITCH_RESET_KEY`, ejecutar localmente desde `backend/` una vez y copiar el resultado
+solo a esa variable. Mantenerla privada: permite restaurar el escenario compartido.
 
 ```powershell
 .\.venv\Scripts\python.exe -c "import secrets; print(secrets.token_urlsafe(32))"
@@ -161,6 +167,26 @@ Referencias: [FastAPI](https://vercel.com/docs/frameworks/backend/fastapi),
 8. Desplegar nuevamente si cambian esas variables. No usar `*` ni una ruta después del origen.
 9. Si está activada la protección de despliegues del proveedor, comprobar que las peticiones del
    frontend pueden alcanzar la API. No poner tokens de bypass del proveedor en el navegador.
+
+#### Cambiar la clave de acceso de un despliegue existente
+
+1. En Vercel abrir el proyecto del **backend** → **Settings** → **Environment Variables**.
+   Editar `PITCH_ACCESS_KEY` en **Production** con la clave elegida; si se usa Preview, actualizar
+   también ese entorno. Guardar el cambio. No modificar `PITCH_RESET_KEY`. Esperar a publicar
+   el código actualizado antes de redesplegar: la versión anterior exige al menos 24 caracteres.
+2. Subir a GitHub esta versión, que admite acceso de 8 a 64 caracteres. Esperar a que termine
+   el despliegue automático o desplegar el commit actualizado.
+3. Si el código ya se había publicado antes de guardar la variable, desde **Deployments**
+   redesplegar el commit actualizado. Cambiar una variable no actualiza las funciones
+   que ya estaban desplegadas.
+4. Publicar también el frontend actualizado para que el campo valide el mismo rango de longitud.
+   No añadir la clave a ninguna variable `VITE_*`.
+5. Abrir la demo, salir de una sesión existente o recargar e introducir la nueva clave. Comprobar
+   que permite entrar y que la clave anterior se rechaza. Las sesiones ya abiertas siguen siendo
+   válidas hasta cerrar sesión o vencer; este cambio no las revoca.
+
+No requiere migraciones ni volver a cargar el escenario. Si una clave anterior supera los 64
+caracteres, configurar su reemplazo al publicar esta versión para que FastAPI pueda arrancar.
 
 ### Cloudflare Pages para React y un backend Docker
 

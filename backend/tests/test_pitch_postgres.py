@@ -14,7 +14,7 @@ from app.pitch_seed import initialize_scenario
 from app.security import token_digest
 
 pytestmark = pytest.mark.integration
-ACCESS = "test-only-pitch-access-0123456789"
+ACCESS = "test-pitch"
 RESET = "test-only-presenter-key-9876543210"
 
 

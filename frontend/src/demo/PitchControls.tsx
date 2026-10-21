@@ -12,7 +12,7 @@ export function PitchAccess({ onAccess }: { onAccess: (context: DemoContext) => 
       const context = await pitchApi.login(key)
       if (action.isMounted()) { setKey(''); onAccess(context) }
     }, '') }}><fieldset disabled={action.busy}>
-      <label htmlFor="pitch-access">Clave de acceso a la presentación</label><input id="pitch-access" type="password" required maxLength={256} autoComplete="off" value={key} onChange={event => setKey(event.target.value)} />
+      <label htmlFor="pitch-access">Clave de acceso a la presentación</label><input id="pitch-access" type="password" required minLength={8} maxLength={64} autoComplete="off" value={key} onChange={event => setKey(event.target.value)} />
       <button type="submit">{action.busy ? 'Entrando…' : 'Entrar a la demo'}</button>
     </fieldset></form>
     {action.error && <p className="error" role="alert">{action.error}</p>}
