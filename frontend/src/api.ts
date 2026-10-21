@@ -267,8 +267,8 @@ export const demoApi = {
 }
 
 export const pitchApi = {
-  login: async (accessKey: string) => {
-    const result = await request<{ access_token: string; expires_at: string }>('/api/v1/pitch/login', { method: 'POST', body: JSON.stringify({ access_key: accessKey }) })
+  login: async () => {
+    const result = await request<{ access_token: string; expires_at: string }>('/api/v1/pitch/login', { method: 'POST' })
     pitchToken = result.access_token
     return demoApi.context()
   },

@@ -310,10 +310,10 @@ Solución propuesta para acotar la demo:
   capacidad, dos en un viaje al 25% y uno entregado por aliado. Actores, contactos y flota son de prueba.
 - Carga explícita e idempotente mediante `app.pitch_seed`. No crea tablas ni carga datos al arrancar.
   Reiniciar FastAPI conserva el estado; restaurar el pitch es una acción distinta del presentador.
-- Acceso mediante clave compartida del backend y sesiones con tokens opacos guardados como hash y
+- Acceso público mediante **Explorar demo**, sin clave, y sesiones con tokens opacos guardados como hash y
   con vencimiento. El token permanece solo en memoria del navegador. Elegir roles sigue siendo un ensayo,
   no identidad ni permisos de empleados reales. La infraestructura Argon2 del hito 1 queda disponible aparte.
-- Reinicio con segunda clave distinta, confirmación y comprobación de versión. Reemplaza únicamente
+- Reinicio con clave privada del presentador, confirmación y comprobación de versión. Reemplaza únicamente
   el escenario configurado, conserva otras tablas y escenarios y genera nuevos códigos. Las pestañas
   antiguas no pueden aplicar mutaciones hasta actualizar, aunque coincida una revisión numérica.
 - Límite de 100 pedidos y 2 MB por escenario para mantener el volumen de una presentación.
@@ -331,7 +331,7 @@ Se añadieron pruebas de PostgreSQL para persistencia entre instancias, reinicio
 concurrencia; requieren base separada y aún están omitidas. Docker está instalado pero su daemon
 no estaba activo, por lo que la imagen no se ha construido. La revisión visual sigue pendiente.
 
-Aceptación final pendiente: configurar `DATABASE_URL`, dos claves y la base de pruebas; aplicar
+Aceptación final pendiente: configurar `DATABASE_URL`, la clave de reinicio y la base de pruebas; aplicar
 migración y carga explícitas, verificar persistencia real y conflictos en PostgreSQL, publicar ambos
 servicios y repetir el recorrido desde las URLs HTTPS. Guía completa en [DEPLOYMENT.md](DEPLOYMENT.md).
 

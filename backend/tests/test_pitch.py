@@ -15,8 +15,8 @@ from app.main import create_app
 from app.models import SCHEMA_REVISION
 from app.pitch_seed import prepared_scenario
 from app.pitch_state import PersistentDemoStore, dump_store, load_store, request_generation
+from app.security import token_digest
 
-ACCESS = "test-pitch"
 RESET = "test-only-presenter-key-9876543210"
 URL = "postgresql+psycopg://user:password@db.test/db?sslmode=require"
 
@@ -26,7 +26,6 @@ def pitch_settings(**changes):
         _env_file=None,
         pitch_mode=True,
         database_url=URL,
-        pitch_access_key=ACCESS,
         pitch_reset_key=RESET,
         **changes,
     )
@@ -120,37 +119,33 @@ def test_new_prepared_scenario_has_new_identity_but_same_roles_and_stages():
     "change",
     [
         {"demo_mode": True},
-        {"pitch_access_key": "short"},
-        {"pitch_access_key": None},
-        {"pitch_access_key": "a" * 65},
+        {"pitch_reset_key": None},
         {"pitch_reset_key": "short"},
         {"pitch_reset_key": "r" * 23},
         {"pitch_reset_key": "r" * 257},
-        {"pitch_access_key": RESET},
-        {"pitch_access_key": "REPLACE_WITH_RANDOM_ACCESS_KEY"},
+        {"pitch_reset_key": "REPLACE_WITH_RANDOM_PRESENTER_KEY"},
         {"database_url": None},
         {"pitch_scenario_id": "../other"},
     ],
 )
 def test_pitch_configuration_is_explicit_and_secret_errors_are_sanitized(change):
-    values = dict(pitch_mode=True, database_url=URL, pitch_access_key=ACCESS, pitch_reset_key=RESET)
+    values = dict(pitch_mode=True, database_url=URL, pitch_reset_key=RESET)
     values.update(change)
     with pytest.raises(ValidationError) as failure:
         Settings(_env_file=None, **values)
-    assert ACCESS not in str(failure.value) and "user:password" not in str(failure.value)
+    assert RESET not in str(failure.value) and "user:password" not in str(failure.value)
 
 
-@pytest.mark.parametrize("access_key", ["a" * 8, "MONAMI-PITCH", "a" * 64])
 @pytest.mark.parametrize("reset_key", ["r" * 24, "r" * 256])
-def test_pitch_accepts_memorable_access_keys_with_separate_presenter_limits(access_key, reset_key):
+def test_public_pitch_only_requires_presenter_key(reset_key, monkeypatch):
+    # Una variable antigua en el proveedor no debe impedir el acceso público.
+    monkeypatch.setenv("PITCH_ACCESS_KEY", "obsolete")
     settings = Settings(
         _env_file=None,
         pitch_mode=True,
         database_url=URL,
-        pitch_access_key=access_key,
         pitch_reset_key=reset_key,
     )
-    assert settings.pitch_access_key.get_secret_value() == access_key
     assert settings.pitch_reset_key.get_secret_value() == reset_key
 
 
@@ -236,11 +231,6 @@ def test_pitch_gate_opens_remote_demo_only_after_access_and_sanitizes_database_e
             ).status_code
             == 401
         )
-        assert (
-            client.post("/api/v1/pitch/login", json={"access_key": "wrong-key"}).status_code == 401
-        )
-        invalid = client.post("/api/v1/pitch/login", json={"access_key": ACCESS, "extra": "bad"})
-        assert invalid.status_code == 422 and ACCESS not in invalid.text
         engine.connect.return_value.__enter__.side_effect = OperationalError(
             "secret", {}, Exception(URL)
         )
@@ -250,30 +240,47 @@ def test_pitch_gate_opens_remote_demo_only_after_access_and_sanitizes_database_e
         assert failed.status_code == 503 and "password" not in failed.text
 
 
-@pytest.mark.parametrize("access_key", ["a" * 7, "a" * 65])
-def test_pitch_login_rejects_out_of_range_keys_without_database_access(monkeypatch, access_key):
+def test_public_pitch_login_sanitizes_database_errors(monkeypatch):
     engine = MagicMock()
     monkeypatch.setattr("app.main.build_engine", lambda _: engine)
+    engine.begin.return_value.__enter__.side_effect = OperationalError("secret", {}, Exception(URL))
     with TestClient(create_app(pitch_settings())) as client:
-        response = client.post("/api/v1/pitch/login", json={"access_key": access_key})
-        assert response.status_code == 422 and access_key not in response.text
-        engine.begin.assert_not_called()
+        response = client.post("/api/v1/pitch/login")
+        assert response.status_code == 503 and "password" not in response.text
 
 
-def test_pitch_login_accepts_short_key_but_requires_exact_match(monkeypatch):
+def test_pitch_login_creates_hashed_session_without_key_or_body(monkeypatch):
     store, connection, _ = fake_store()
     connection.scalar.return_value = SCHEMA_REVISION
     monkeypatch.setattr("app.main.build_engine", lambda _: store.engine)
     with TestClient(create_app(pitch_settings())) as client:
-        for incorrect in (ACCESS.upper(), "old-test-pitch-key-0123456789"):
-            assert (
-                client.post("/api/v1/pitch/login", json={"access_key": incorrect}).status_code
-                == 401
-            )
-        response = client.post("/api/v1/pitch/login", json={"access_key": ACCESS})
+        contract = client.get("/openapi.json").json()["paths"]["/api/v1/pitch/login"]["post"]
+        assert "requestBody" not in contract
+        response = client.post("/api/v1/pitch/login")
         assert response.status_code == 200
         assert response.json()["access_token"] and response.json()["expires_at"]
-        assert ACCESS not in response.text
+        token = response.json()["access_token"]
+        inserted = next(
+            args[0]
+            for args, _ in connection.execute.call_args_list
+            if getattr(args[0], "is_insert", False)
+        )
+        assert inserted.compile().params["token_hash"] == token_digest(token)
+        assert inserted.compile().params["token_hash"] != token
+
+
+def test_public_access_does_not_allow_reset_without_presenter_key(monkeypatch):
+    engine = MagicMock()
+    monkeypatch.setattr("app.main.build_engine", lambda _: engine)
+    with TestClient(create_app(pitch_settings())) as client:
+        body = {"expected_generation": str(uuid.uuid4()), "confirmation": "REINICIAR"}
+        headers = {"Authorization": "Bearer public-session"}
+        assert client.post("/api/v1/pitch/reset", headers=headers, json=body).status_code == 422
+        response = client.post(
+            "/api/v1/pitch/reset", headers=headers, json={**body, "reset_key": "wrong"}
+        )
+        assert response.status_code == 403
+        engine.begin.assert_not_called()
 
 
 def test_pitch_endpoints_absent_from_local_and_identity_modes():

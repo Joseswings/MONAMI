@@ -10,8 +10,9 @@ React + Vite + TypeScript → FastAPI → PostgreSQL en Supabase. React solo con
 de FastAPI. No hay cliente Supabase, claves de base ni acceso directo a PostgreSQL en el navegador.
 
 El escenario es compartido entre participantes, con una única EmpresaTest y cinco actores ficticios.
-Una clave permite entrar y cambiar de rol para presentar el recorrido. Una segunda clave, del
-presentador, permite restaurarlo. Esto es acceso a una demo, no registro de clientes o empleados reales.
+El botón **Explorar demo** permite entrar sin contraseña y cambiar de rol para presentar el recorrido.
+Una clave privada del presentador permite restaurarlo. Esto es acceso público a una demo,
+no registro de clientes o empleados reales.
 
 Se guardan pedidos, camiones, viajes, incidentes, terceros, historiales e idempotencia en un agregado
 JSONB versionado en `monami.pitch_scenarios`. Cada operación se ejecuta bajo una transacción y
@@ -19,7 +20,7 @@ bloqueo de fila PostgreSQL. Los datos persisten entre procesos y reinicios de Fa
 para acotar el pitch: todavía no hay tablas operativas normalizadas ni consultas analíticas logísticas.
 
 Las sesiones guardan únicamente el hash del token en `monami.pitch_sessions`. El token del navegador
-vive en memoria: recargar pide entrar de nuevo, conservando los datos del escenario. No hay sesiones
+vive en memoria: recargar pide pulsar **Explorar demo** de nuevo, conservando los datos del escenario. No hay sesiones
 por empleado ni permiso administrativo real al seleccionar el actor empresa; todos los participantes
 con acceso pueden ensayar los roles ficticios. El reinicio exige además la clave del presentador.
 
@@ -31,8 +32,7 @@ Una aplicación comercial completa requiere otro alcance de identidad, permisos,
 
 - URL PostgreSQL real del proyecto Supabase para el backend, con contraseña codificada y SSL.
 - Opcionalmente, otra conexión con permisos DDL para Alembic: `MIGRATION_DATABASE_URL`.
-- Una clave de acceso fácil de compartir, de 8 a 64 caracteres.
-- Otra clave privada del presentador para reiniciar, de 24 a 256 caracteres y distinta de la de acceso.
+- Una clave privada del presentador para reiniciar, de 24 a 256 caracteres.
 - Proveedor del backend y URL HTTPS final de ambos servicios; puede decidirse después de preparar la base.
 - Una base PostgreSQL distinta para ejecutar las pruebas de integración.
 
@@ -55,7 +55,6 @@ DEMO_MODE=false
 PITCH_MODE=true
 PITCH_SCENARIO_ID=monami-pitch
 DATABASE_URL=postgresql+psycopg://USUARIO:CONTRASENA_CODIFICADA@HOST:PUERTO/postgres?sslmode=require
-PITCH_ACCESS_KEY=REPLACE_WITH_MEMORABLE_ACCESS_KEY
 PITCH_RESET_KEY=REPLACE_WITH_RANDOM_PRESENTER_KEY
 CORS_ORIGINS=["http://localhost:5173"]
 SESSION_TTL_MINUTES=480
@@ -65,10 +64,9 @@ Sustituir `postgresql://` de la cadena de Supabase por `postgresql+psycopg://`. 
 host, puerto y base. Añadir `?sslmode=require`, o `&sslmode=require` si ya tiene parámetros. Codificar
 caracteres reservados de la contraseña, por ejemplo `@` como `%40` y `#` como `%23`, sin codificar la URL completa.
 
-Para `PITCH_ACCESS_KEY`, elegir una frase fácil de escribir de 8 a 64 caracteres. Por ejemplo,
-`MONAMI-PITCH` ilustra el formato; no es una clave configurada ni una contraseña predefinida.
-Compartir la clave elegida con los espectadores: permite entrar y recorrer todos los roles de la demo.
-Se distingue entre mayúsculas y minúsculas; escribirla exactamente como se configuró.
+Los espectadores no necesitan una clave: el botón **Explorar demo** crea una sesión pública para
+recorrer los roles ficticios. `PITCH_ACCESS_KEY` ya no se utiliza; si permanece en archivos locales
+o en el proveedor, se ignora. Solo el reinicio requiere una clave privada.
 
 Para generar `PITCH_RESET_KEY`, ejecutar localmente desde `backend/` una vez y copiar el resultado
 solo a esa variable. Mantenerla privada: permite restaurar el escenario compartido.
@@ -122,7 +120,7 @@ Arrancar FastAPI desde `backend/` y React desde `frontend/`:
 npm.cmd run dev -- --port 5173 --strictPort
 ```
 
-Abrir http://localhost:5173 e introducir `PITCH_ACCESS_KEY` en la pantalla de acceso. Aparece:
+Abrir http://localhost:5173 y pulsar **Explorar demo**, sin introducir credenciales. Aparece:
 
 | Situación inicial | Uso durante el pitch |
 | --- | --- |
@@ -168,25 +166,21 @@ Referencias: [FastAPI](https://vercel.com/docs/frameworks/backend/fastapi),
 9. Si está activada la protección de despliegues del proveedor, comprobar que las peticiones del
    frontend pueden alcanzar la API. No poner tokens de bypass del proveedor en el navegador.
 
-#### Cambiar la clave de acceso de un despliegue existente
+#### Activar el acceso público en un despliegue existente
 
-1. En Vercel abrir el proyecto del **backend** → **Settings** → **Environment Variables**.
-   Editar `PITCH_ACCESS_KEY` en **Production** con la clave elegida; si se usa Preview, actualizar
-   también ese entorno. Guardar el cambio. No modificar `PITCH_RESET_KEY`. Esperar a publicar
-   el código actualizado antes de redesplegar: la versión anterior exige al menos 24 caracteres.
-2. Subir a GitHub esta versión, que admite acceso de 8 a 64 caracteres. Esperar a que termine
-   el despliegue automático o desplegar el commit actualizado.
-3. Si el código ya se había publicado antes de guardar la variable, desde **Deployments**
-   redesplegar el commit actualizado. Cambiar una variable no actualiza las funciones
-   que ya estaban desplegadas.
-4. Publicar también el frontend actualizado para que el campo valide el mismo rango de longitud.
-   No añadir la clave a ninguna variable `VITE_*`.
-5. Abrir la demo, salir de una sesión existente o recargar e introducir la nueva clave. Comprobar
-   que permite entrar y que la clave anterior se rechaza. Las sesiones ya abiertas siguen siendo
-   válidas hasta cerrar sesión o vencer; este cambio no las revoca.
+1. Subir esta versión a GitHub y publicar el **backend** con el commit actualizado. Comprobar
+   el commit de origen del despliegue: redesplegar una publicación antigua conserva su código.
+2. Publicar el **frontend** con el mismo commit para mostrar el botón **Explorar demo**.
+   Publicar primero el backend evita que el botón nuevo encuentre una API que todavía exija clave.
+3. Con ambos servicios actualizados, se puede eliminar `PITCH_ACCESS_KEY` de las variables del
+   backend y de los archivos locales. Es opcional: la nueva versión ignora esa variable.
+   Mantener `PITCH_RESET_KEY`, `DATABASE_URL` y las demás variables de conexión y CORS.
+4. Abrir la demo o recargar y comprobar que **Explorar demo** permite entrar sin contraseña,
+   cambiar roles y consultar el escenario. Comprobar que reiniciar todavía exige la clave
+   del presentador. Las sesiones existentes siguen siendo válidas hasta salir o vencer.
 
-No requiere migraciones ni volver a cargar el escenario. Si una clave anterior supera los 64
-caracteres, configurar su reemplazo al publicar esta versión para que FastAPI pueda arrancar.
+No requiere migraciones ni volver a cargar el escenario. El acceso público mantiene el progreso
+compartido: las acciones de cualquier visitante afectan al escenario de todos los participantes.
 
 ### Cloudflare Pages para React y un backend Docker
 
@@ -215,7 +209,8 @@ docker build -t monami-pitch ./backend
 - `GET /health/live`: proceso activo, sin requerir la base.
 - `GET /health/ready`: en pitch devuelve `{"status":"pitch","storage":"postgresql"}` solo con
   esquema y escenario disponibles. Un fallo de base responde `503` sin credenciales.
-- `POST /api/v1/pitch/login`: `{ "access_key": "..." }`, devuelve token opaco y vencimiento.
+- `POST /api/v1/pitch/login`: sin cuerpo ni clave, crea una sesión pública y devuelve token opaco
+  y vencimiento. Se conserva la ruta para el contrato del pitch.
 - `POST /api/v1/pitch/logout`: Bearer token, revoca sesión.
 - `POST /api/v1/pitch/reset`: Bearer token, `reset_key`, `expected_generation` y
   `confirmation: "REINICIAR"`. Compara la versión bajo bloqueo antes de reemplazar el estado.
@@ -223,7 +218,7 @@ docker build -t monami-pitch ./backend
   Las mutaciones incluyen `X-Pitch-Generation`; las revisiones individuales también siguen vigentes.
 
 Tras desplegar: entrar, cambiar roles, modificar un pedido y confirmar que persiste tras reiniciar
-FastAPI; completar entrega propia y por tercero; restaurar con el presentador; rechazar clave errónea,
+FastAPI; completar entrega propia y por tercero; restaurar con el presentador; rechazar clave de reinicio errónea,
 sesión cerrada, rol incompatible y acciones antiguas; comprobar CORS desde la URL publicada.
 
 Pruebas PostgreSQL: configurar `TEST_DATABASE_URL` en el entorno con una base separada y TLS,

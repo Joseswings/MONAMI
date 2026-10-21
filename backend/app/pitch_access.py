@@ -1,4 +1,4 @@
-"""Acceso compartido al pitch y reinicio reservado al presentador."""
+"""Acceso público al pitch y reinicio reservado al presentador."""
 
 import secrets
 import uuid
@@ -14,11 +14,6 @@ from app.pitch_state import check_schema, dump_store, scenario_row
 from app.security import create_token, token_digest
 
 pitch_router = APIRouter(prefix="/api/v1/pitch", tags=["pitch preparado"])
-
-
-class PitchLogin(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    access_key: SecretStr = Field(min_length=8, max_length=64)
 
 
 class PitchReset(BaseModel):
@@ -37,7 +32,7 @@ def require_pitch_session(request: Request) -> str:
     prefix, _, token = request.headers.get("Authorization", "").partition(" ")
     if prefix.lower() != "bearer" or not token or len(token) > 256:
         raise HTTPException(
-            401, "Introduce la clave de acceso al pitch", headers={"WWW-Authenticate": "Bearer"}
+            401, "Pulsa Explorar demo para entrar", headers={"WWW-Authenticate": "Bearer"}
         )
     settings = request.app.state.settings
     with request.app.state.engine.connect() as connection:
@@ -56,13 +51,8 @@ def require_pitch_session(request: Request) -> str:
 
 
 @pitch_router.post("/login", response_model=PitchToken)
-def pitch_login(data: PitchLogin, request: Request) -> PitchToken:
+def pitch_login(request: Request) -> PitchToken:
     settings = request.app.state.settings
-    if not secrets.compare_digest(
-        data.access_key.get_secret_value().encode(),
-        settings.pitch_access_key.get_secret_value().encode(),
-    ):
-        raise HTTPException(401, "Clave de acceso no válida")
     token, expires_at = create_token(settings.session_ttl_minutes)
     with request.app.state.engine.begin() as connection:
         check_schema(connection)

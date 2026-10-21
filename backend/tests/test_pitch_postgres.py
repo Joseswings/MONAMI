@@ -14,7 +14,6 @@ from app.pitch_seed import initialize_scenario
 from app.security import token_digest
 
 pytestmark = pytest.mark.integration
-ACCESS = "test-pitch"
 RESET = "test-only-presenter-key-9876543210"
 
 
@@ -26,7 +25,6 @@ def pitch(postgres):
         _env_file=None,
         pitch_mode=True,
         database_url=base.database_url,
-        pitch_access_key=ACCESS,
         pitch_reset_key=RESET,
         pitch_scenario_id=scenario_id,
     )
@@ -40,7 +38,7 @@ def pitch(postgres):
 
 
 def enter(client):
-    response = client.post("/api/v1/pitch/login", json={"access_key": ACCESS})
+    response = client.post("/api/v1/pitch/login")
     assert response.status_code == 200
     token = response.json()["access_token"]
     context = client.get(

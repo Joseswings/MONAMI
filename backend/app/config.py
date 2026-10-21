@@ -30,7 +30,6 @@ class Settings(BaseSettings):
 
     demo_mode: bool = False
     pitch_mode: bool = False
-    pitch_access_key: SecretStr | None = None
     pitch_reset_key: SecretStr | None = None
     pitch_scenario_id: str = Field(default="monami-pitch", pattern=r"^[a-z0-9-]{1,64}$")
     database_url: SecretStr | None = None
@@ -45,16 +44,13 @@ class Settings(BaseSettings):
         if self.pitch_mode:
             if self.database_url is None:
                 raise ValueError("PITCH_MODE requiere DATABASE_URL")
-            for name, key, minimum, maximum in (
-                ("PITCH_ACCESS_KEY", self.pitch_access_key, 8, 64),
-                ("PITCH_RESET_KEY", self.pitch_reset_key, 24, 256),
+            if (
+                self.pitch_reset_key is None
+                or not 24 <= len(self.pitch_reset_key.get_secret_value()) <= 256
             ):
-                if key is None or not minimum <= len(key.get_secret_value()) <= maximum:
-                    raise ValueError(f"{name} requiere entre {minimum} y {maximum} caracteres")
-                if "REPLACE" in key.get_secret_value():
-                    raise ValueError("Reemplazar las claves de ejemplo del pitch")
-            if self.pitch_access_key == self.pitch_reset_key:
-                raise ValueError("Usar claves distintas de acceso y reinicio")
+                raise ValueError("PITCH_RESET_KEY requiere entre 24 y 256 caracteres")
+            if "REPLACE" in self.pitch_reset_key.get_secret_value():
+                raise ValueError("Reemplazar la clave de ejemplo del presentador")
         if not self.demo_mode:
             validate_database_url(self.database_url)
             validate_database_url(self.migration_database_url)

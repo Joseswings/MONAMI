@@ -4,19 +4,17 @@ import type { DemoContext } from '../api'
 import { useDemoAction } from './useDemoAction'
 
 export function PitchAccess({ onAccess }: { onAccess: (context: DemoContext) => void }) {
-  const [key, setKey] = useState('')
   const action = useDemoAction()
   return <main><section className="card"><span className="brand">monami.</span><h1>Explora la demo</h1>
     <p>Un escenario preparado con datos ficticios para recorrer Monami desde cliente, empresa y conductor.</p>
     <form onSubmit={event => { event.preventDefault(); void action.perform(async () => {
-      const context = await pitchApi.login(key)
-      if (action.isMounted()) { setKey(''); onAccess(context) }
+      const context = await pitchApi.login()
+      if (action.isMounted()) onAccess(context)
     }, '') }}><fieldset disabled={action.busy}>
-      <label htmlFor="pitch-access">Clave de acceso a la presentación</label><input id="pitch-access" type="password" required minLength={8} maxLength={64} autoComplete="off" value={key} onChange={event => setKey(event.target.value)} />
-      <button type="submit">{action.busy ? 'Entrando…' : 'Entrar a la demo'}</button>
+      <button type="submit">{action.busy ? 'Entrando…' : 'Explorar demo'}</button>
     </fieldset></form>
     {action.error && <p className="error" role="alert">{action.error}</p>}
-    <p className="hint">Solicita la clave al presentador. Al recargar tendrás que entrar de nuevo; el escenario conserva sus datos.</p>
+    <p className="hint">Acceso libre, sin clave. Al recargar, pulsa Explorar demo para volver a entrar; el escenario conserva sus datos.</p>
   </section></main>
 }
 

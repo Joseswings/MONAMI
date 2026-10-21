@@ -10,10 +10,10 @@ Para pitch usar `DEMO_MODE=false` y `PITCH_MODE=true`, migrar con Alembic y carg
 `python -m app.pitch_seed`. No hay carga ni reinicio automático al arrancar. Las instrucciones
 de arranque y recorrido siguientes siguen disponibles para la simulación local vacía.
 
-La clave compartida `PITCH_ACCESS_KEY` admite de **8 a 64 caracteres**, para facilitar el acceso
-de los espectadores. La clave privada de reinicio `PITCH_RESET_KEY` conserva de **24 a 256 caracteres**;
-deben ser distintas. Ambas se configuran solo en el backend. Para cambiarlas en Vercel, seguir la
-[guía de actualización de la clave de acceso](docs/DEPLOYMENT.md#cambiar-la-clave-de-acceso-de-un-despliegue-existente).
+Los espectadores entran con **Explorar demo**, sin contraseña, y pueden ensayar todos los roles.
+La clave privada de reinicio `PITCH_RESET_KEY` conserva de **24 a 256 caracteres** y se configura
+solo en el backend. `PITCH_ACCESS_KEY` ya no se utiliza. Para actualizar un despliegue existente,
+seguir la [guía de acceso público](docs/DEPLOYMENT.md#activar-el-acceso-público-en-un-despliegue-existente).
 
 Verificaciones del hito 9: `npm.cmd run build`, `ruff check`, `ruff format --check` y comprobación
 offline del lock aprobados. **249 pruebas aprobadas, 10 de PostgreSQL omitidas**; cubren el escenario,
